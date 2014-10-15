@@ -2,10 +2,19 @@ var mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
 var ApiSchema = new Schema({
-	path: String,
-	namespace: String,
+	path: {
+    type: String,
+    required: true
+  },
+	namespace: {
+    type: String,
+    required: true
+  },
   description: String,
-	route: [],
+	route: {
+    type: String,
+    required: true
+  },
 	idl: String,
 	disabled: Boolean
 });
