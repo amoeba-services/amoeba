@@ -9,7 +9,11 @@ module.exports = function (app) {
   app.use('/apis', router);
 };
 
+var DEFAULT_SEARCH_RESULT_AMOUNT = 5,
+  MAX_SEARCH_RESULT_AMOUNT = 10;
+
 router.route('/')
+//创建
 .post(function (req, res, next) {
   req.api = req.body;
 
@@ -21,7 +25,7 @@ router.route('/')
     return next(err);
   }
 
-  findConflictedApi(req.api, function(err, conflictedApi) {
+  findConflictedApi(req.api, function (err, conflictedApi) {
     if (err) return next(err);
     if (conflictedApi !== null) {
       //存在冲突的 api
@@ -45,7 +49,47 @@ router.route('/')
     next();
   });
 })
-.post(echo);
+.post(echo)
+//搜索
+.get(function queryParser (req, res, next) {
+  var query = req.param('q'),
+    amount = Math.floor(req.param('amount'));
+  if (query === undefined) {
+    var err = new Error('Param \'q\' Required');
+    err.status = 400;
+    return next(err);
+  }
+  if (amount < 1) amount = DEFAULT_SEARCH_RESULT_AMOUNT;
+  if (amount > MAX_SEARCH_RESULT_AMOUNT) amount = MAX_SEARCH_RESULT_AMOUNT;
+
+  var queryItems = query.split(' ');
+  query = {};
+  var path = queryItems.shift();
+  if (path.length === 0) {
+    var err = new Error('Query Illegal, Path Required');
+    err.status = 400;
+    return next(err);
+  }
+  path = new RegExp(path);
+  _.each(queryItems, extendQuery, query);
+  query.path = path;
+  req.query = query;
+  req.options = {
+    amount: amount
+  };
+  console.log('Query: ', req.query, 'Options: ', req.options);
+  next();
+})
+.get(function search(req, res, next) {
+  Api.find(req.query, null, { limit: req.options.amount }, function(err, apis) {
+    if (err) return next(err);
+    res.apis = apis;
+    next();
+  });
+})
+.get(function echo(req, res, next) {
+  res.json(_.map(res.apis, dropDbInfo));
+});
 
 router.route('/:namespace/:path')
 .all(function paramsNormalizer (req, res, next) {
@@ -65,9 +109,11 @@ router.route('/:namespace/:path')
   next();
 })
 
+//获取
 .get(apiMatcher)
 .get(echo)
 
+//更新
 .patch(apiMatcher)
 .patch(function (req, res, next) {
   _.extend(res.api, req.body);
@@ -82,7 +128,7 @@ router.route('/:namespace/:path')
       err.message += " For Target API";
       return next(err);
     }
-    findConflictedApi(res.api, function(err, conflictedApi) {
+    findConflictedApi(res.api, function (err, conflictedApi) {
       if (err) return next(err);
       if (conflictedApi !== null) {
         //存在冲突的 api
@@ -127,6 +173,7 @@ router.route('/:namespace/:path')
 })
 .put(echo)
 
+//删除（不允许）
 .delete(function (req, res, next) {
   var err = new Error('Method Not Allowed');
   err.status = 405;
@@ -184,11 +231,32 @@ function apiMatcher(req, res, next) {
   });
 }
 
-function echo(req, res, next) {
-  //去掉各种不需要的字段
-  res.api._id = undefined;
-  res.api.__v = undefined; //mongoose revision index
-  res.api.path = undefined;
-  res.api.namespace = undefined;
-  res.json(res.api);
+//去掉不需要的数据库相关字段
+function dropDbInfo (api) {
+  if (api.toJSON) api = api.toJSON();
+  return _.extend({}, api, {
+    _id: undefined,
+    __v: undefined //mongoose revision index
+  });
+}
+function dropKeys (api) {
+  if (api.toJSON) api = api.toJSON();
+  return _.extend({}, api, {
+    path: undefined,
+    namespace: undefined
+  });
+}
+function echo (req, res, next) {
+  res.json(dropKeys(dropDbInfo(res.api)));
+}
+
+function extendQuery(item) {
+  if (typeof this !== 'object') return;
+  var itemParts = item.split(':'),
+    conditionKey = itemParts[0],
+    conditionValue = itemParts[1];
+  if (conditionKey === '') return;
+  if (conditionValue === undefined) conditionValue = true;
+  this[conditionKey] = conditionValue;
+  return this;
 }
