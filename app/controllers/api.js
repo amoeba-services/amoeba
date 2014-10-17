@@ -3,7 +3,9 @@ var express = require('express'),
   _ = require('underscore'),
   mongoose = require('mongoose'),
   Api = mongoose.model('Api'),
-  validator = require('../lib/validator');
+  util = {
+    api: require('../utils/api')
+  };
 
 module.exports = function (app) {
   app.use('/apis', router);
@@ -18,14 +20,14 @@ router.route('/')
   req.api = req.body;
 
   try {
-    normalizeKeys(req.api);
+    util.api.normalizeKeys(req.api);
   }
   catch (err) {
     err.status = 400;
     return next(err);
   }
 
-  findConflictedApi(req.api, function (err, conflictedApi) {
+  util.api.findConflictedApi(req.api, function (err, conflictedApi) {
     if (err) return next(err);
     if (conflictedApi !== null) {
       //存在冲突的 api
@@ -88,7 +90,7 @@ router.route('/')
   });
 })
 .get(function echo(req, res, next) {
-  res.json(_.map(res.apis, dropDbInfo));
+  res.json(_.map(res.apis, util.api.dropDbInfo));
 });
 
 router.route('/:namespace/:path')
@@ -99,7 +101,7 @@ router.route('/:namespace/:path')
   };
 
   try {
-    normalizeKeys(req.api);
+    util.api.normalizeKeys(req.api);
   }
   catch (err) {
     err.status = 400;
@@ -121,14 +123,14 @@ router.route('/:namespace/:path')
   if (keyChanged) {
     //检查是否合法
     try {
-      normalizeKeys(res.api);
+      util.api.normalizeKeys(res.api);
     }
     catch (err) {
       err.status = 400;
       err.message += " For Target API";
       return next(err);
     }
-    findConflictedApi(res.api, function (err, conflictedApi) {
+    util.api.findConflictedApi(res.api, function (err, conflictedApi) {
       if (err) return next(err);
       if (conflictedApi !== null) {
         //存在冲突的 api
@@ -180,40 +182,6 @@ router.route('/:namespace/:path')
   next(err);
 });
 
-function normalizeKeys (api) {
-  if (!api.namespace) {
-    throw new Error('Namespace Required');
-  }
-  if (!api.path) {
-    throw new Error('Path Required');
-  }
-
-  if (api.path[0] !== '/') {
-    api.path = '/' + api.path;
-  }
-
-  if (!validator.namespace.test(api.namespace)) {
-    throw new Error('Illegal Namespace');
-  }
-  if (!validator.path.test(api.path)) {
-    throw new Error('Illegal Path');
-  }
-  return api;
-}
-
-//检查是否已经存在存在冲突的 api
-function findConflictedApi (api, callback) {
-  var condition = {
-    namespace: api.namespace,
-    path: api.path
-  };
-  //排除自身
-  if (api._id) {
-    condition._id = { $ne: api._id }
-  }
-  Api.findOne(condition, 'path', callback);
-}
-
 function apiMatcher(req, res, next) {
   Api.findOne({
     namespace: req.api.namespace,
@@ -231,23 +199,8 @@ function apiMatcher(req, res, next) {
   });
 }
 
-//去掉不需要的数据库相关字段
-function dropDbInfo (api) {
-  if (api.toJSON) api = api.toJSON();
-  return _.extend({}, api, {
-    _id: undefined,
-    __v: undefined //mongoose revision index
-  });
-}
-function dropKeys (api) {
-  if (api.toJSON) api = api.toJSON();
-  return _.extend({}, api, {
-    path: undefined,
-    namespace: undefined
-  });
-}
 function echo (req, res, next) {
-  res.json(dropKeys(dropDbInfo(res.api)));
+  res.json(util.api.dropKeys(util.api.dropDbInfo(res.api)));
 }
 
 function extendQuery(item) {
