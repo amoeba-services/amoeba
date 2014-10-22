@@ -50,7 +50,7 @@ module.exports = {
     };
     //排除自身
     if (api._id) {
-      conditions._id = { $ne: api._id }
+      conditions._id = { $ne: api._id };
     }
     Api.findOne(conditions, 'path', callback);
   }

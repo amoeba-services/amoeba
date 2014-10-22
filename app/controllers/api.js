@@ -31,7 +31,7 @@ router.route('/')
     if (err) return next(err);
     if (conflictedApi !== null) {
       //存在冲突的 api
-      var err = new Error('API Conflicted');
+      err = new Error('API Conflicted');
       err.status = 409;
       res.set({
         'X-Conflicted-API-Path': conflictedApi.path
@@ -39,7 +39,7 @@ router.route('/')
       return next(err);
     }
     else {
-      console.log('no api conflicted, continue.')
+      console.log('no api conflicted, continue.');
       return next();
     }
   });
@@ -55,9 +55,10 @@ router.route('/')
 //搜索
 .get(function queryParser (req, res, next) {
   var query = req.param('q'),
-    amount = Math.floor(req.param('amount'));
+    amount = Math.floor(req.param('amount')),
+    err;
   if (query === undefined) {
-    var err = new Error('Param \'q\' Required');
+    err = new Error('Param \'q\' Required');
     err.status = 400;
     return next(err);
   }
@@ -68,7 +69,7 @@ router.route('/')
   query = {};
   var path = queryItems.shift();
   if (path.length === 0) {
-    var err = new Error('Query Illegal, Path Required');
+    err = new Error('Query Illegal, Path Required');
     err.status = 400;
     return next(err);
   }
@@ -134,7 +135,7 @@ router.route('/:namespace/:path')
       if (err) return next(err);
       if (conflictedApi !== null) {
         //存在冲突的 api
-        var err = new Error('API Conflicted');
+        err = new Error('API Conflicted');
         err.status = 409;
         res.set({
           'X-Conflicted-API-Path': conflictedApi.path
@@ -142,13 +143,13 @@ router.route('/:namespace/:path')
         return next(err);
       }
       else {
-        console.log('no api conflicted, continue.')
+        console.log('no api conflicted, continue.');
         return next();
       }
     });
   }
   else {
-    console.log('no api keys change, continue.')
+    console.log('no api keys change, continue.');
     next();
   }
 })
@@ -190,7 +191,7 @@ function apiMatcher(req, res, next) {
     if (err) return next(err);
     if (api === null) {
       //没有匹配的 api
-      var err = new Error('API Not Found');
+      err = new Error('API Not Found');
       err.status = 404;
       return next(err);
     }

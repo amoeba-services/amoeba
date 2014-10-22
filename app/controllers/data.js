@@ -45,7 +45,6 @@ router.route('/:namespace/:uri').all(function (req, res, next) {
     res.api = api;
     next();
   });
-  console.log(req.target);
 })
 .all(function (req, res, next) {
   var api = res.api;
