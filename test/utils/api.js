@@ -1,12 +1,14 @@
 var assert = require('assert'),
   should = require('should');
 require('../../app/models/api');
-var api = require('../../app/utils/api');
+var mongoose = require('mongoose'),
+  Api = mongoose.model('Api'),
+  apiUtil = require('../../app/utils/api');
 
 describe('utils', function(){
   describe('api', function(){
     describe('normalizeKeys', function(){
-      var normalizeKeys = api.normalizeKeys;
+      var normalizeKeys = apiUtil.normalizeKeys;
       it('should throw error when field is missing.', function(){
         normalizeKeys.bind(null, { }).should.throw();
         normalizeKeys.bind(null, { namespace: "com.amoeba" }).should.throw();
@@ -26,6 +28,38 @@ describe('utils', function(){
       });
       it('should drop the last \'/\' for path when presents.', function(){
         normalizeKeys({ namespace: "com.amoeba", path: "/path/to/resource/" }).path.should.eql('/path/to/resource');
+      });
+    });
+
+    var sampleApi = {
+      path: '/path/to/resource',
+      namespace: 'com.amoeba',
+      description: 'Description',
+      route: 'Route',
+      __v: 1
+    };
+    var sampleMongooseApi = new Api(sampleApi);
+    var resultApi;
+    describe('dropDbInfo', function(){
+      var dropDbInfo = apiUtil.dropDbInfo;
+      it('should drop _id and __v', function(){
+        resultApi = dropDbInfo(sampleApi);
+        (resultApi.__v === undefined).should.be.true;
+        (resultApi._id === undefined).should.be.true;
+        resultApi = dropDbInfo(sampleMongooseApi);
+        (resultApi.__v === undefined).should.be.true;
+        (resultApi._id === undefined).should.be.true;
+      });
+    });
+    describe('dropKeys', function(){
+      var dropKeys = apiUtil.dropKeys;
+      it('should drop namespace and path', function(){
+        resultApi = dropKeys(sampleApi);
+        (resultApi.namespace === undefined).should.be.true;
+        (resultApi.path === undefined).should.be.true;
+        resultApi = dropKeys(sampleMongooseApi);
+        (resultApi.namespace === undefined).should.be.true;
+        (resultApi.path === undefined).should.be.true;
       });
     });
   });
