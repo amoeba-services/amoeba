@@ -23,7 +23,7 @@ module.exports = {
     if (!api.namespace) {
       throw new Error('Namespace Required');
     }
-    if (typeof api.path !== 'string') {
+    if (!api.path) {
       throw new Error('Path Required');
     }
 

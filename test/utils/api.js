@@ -11,6 +11,8 @@ describe('utils', function(){
         normalizeKeys.bind(null, { }).should.throw();
         normalizeKeys.bind(null, { namespace: "com.amoeba" }).should.throw();
         normalizeKeys.bind(null, { path: "/path/to/resource" }).should.throw();
+        normalizeKeys.bind(null, { namespace: "com.amoeba", path: "" }).should.throw();
+        normalizeKeys.bind(null, { namespace: "", path: "/path/to/resource" }).should.throw();
       });
       it('should throw error when field is invalid.', function(){
         normalizeKeys.bind(null, { namespace: "com.amoeba", path: '?' }).should.throw();
@@ -24,9 +26,6 @@ describe('utils', function(){
       });
       it('should drop the last \'/\' for path when presents.', function(){
         normalizeKeys({ namespace: "com.amoeba", path: "/path/to/resource/" }).path.should.eql('/path/to/resource');
-      });
-      it('should support "" for path.', function(){
-        normalizeKeys({ namespace: "com.amoeba", path: "" }).path.should.eql('/');
       });
     });
   });
