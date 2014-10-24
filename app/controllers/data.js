@@ -11,13 +11,13 @@ var express = require('express'),
 
 module.exports = function (app) {
   app.use('/data', router);
-  app.use('/data', function setErrorHeaders(err, req, res, next) {
+  app.use('/data', function errorHeadersSetter(err, req, res, next) {
     res.set('X-Amoeba-Error', err.code || 5000);
     res.set('X-Amoeba-Message', err.message);
     next(err);
   });
   if (config.app.redirectOnError) {
-    app.use('/data', function redirect(err, req, res, next) {
+    app.use('/data', function redirector(err, req, res, next) {
       res.status(307);
       res.set('Location', req.target.source);
       res.send();
@@ -26,7 +26,7 @@ module.exports = function (app) {
 };
 
 router.route('/:namespace/:uri')
-.all(function (req, res, next) {
+.all(function apiMatcher(req, res, next) {
   req.target = util.uri.parse(req.params.uri);
   var api = {
     namespace: req.params.namespace,
@@ -54,13 +54,21 @@ router.route('/:namespace/:uri')
     next();
   });
 })
-.all(function (req, res, next) {
+.all(function apiInfoHeadersSetter(req, res, next) {
   var api = res.api;
   res.set('X-Amoeba-Namespace', api.namespace);
   res.set('X-Amoeba-Matched-API', api.path);
   next();
 })
-.all(function (req, res, next) {
+.all(function disabledApiChecker(req, res, next) {
+  if (res.api.disabled) {
+    var err = new Error('API disabled');
+    err.code = 2002;
+    return next(err);
+  }
+  next();
+})
+.all(function echoResponse(req, res, next) {
   var api = res.api;
   res.json(api.route);
 });
