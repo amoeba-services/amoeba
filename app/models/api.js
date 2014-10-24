@@ -12,7 +12,7 @@ var ApiSchema = new Schema({
   },
   description: String,
 	route: {
-    type: String,
+    type: [],
     required: true
   },
 	idl: String,

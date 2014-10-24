@@ -1,3 +1,4 @@
+/*jshint expr: true*/
 var assert = require('assert'),
   should = require('should');
 require('../../app/models/api');
