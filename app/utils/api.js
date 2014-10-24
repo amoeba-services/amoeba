@@ -20,10 +20,10 @@ module.exports = {
     });
   },
   normalizeKeys: function (api) {
-    if (!api.namespace) {
+    if (!(typeof api.namespace === 'string' && api.namespace.length)) {
       throw new Error('Namespace Required');
     }
-    if (!api.path) {
+    if (typeof api.path !== 'string') {
       throw new Error('Path Required');
     }
 

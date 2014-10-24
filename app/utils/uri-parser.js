@@ -20,9 +20,9 @@ function parseUri (str) {
 
 parseUri.options = {
 	strictMode: false,
-	key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+	key: ["source","scheme","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
 	q:   {
-		name:   "queryKey",
+		name:   "params",
 		parser: /(?:^|&)([^&=]*)=?([^&]*)/g
 	},
 	parser: {
