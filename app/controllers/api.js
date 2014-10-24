@@ -23,7 +23,7 @@ router.route('/')
     util.api.normalizeKeys(req.api);
   }
   catch (err) {
-    err.status = 400;
+    err.status = 422;
     return next(err);
   }
 
@@ -51,6 +51,14 @@ router.route('/')
     next();
   });
 })
+.post(function (req, res, next) {
+  res.status(201);
+  var uri = '';
+  uri += '/' + encodeURIComponent(res.api.namespace);
+  uri += '/' + encodeURIComponent(res.api.path);
+  res.set('Location', uri);
+  next();
+})
 .post(echo)
 //搜索
 .get(function queryParser (req, res, next) {
@@ -59,7 +67,7 @@ router.route('/')
     err;
   if (query === undefined) {
     err = new Error('Param \'q\' Required');
-    err.status = 400;
+    err.status = 412;
     return next(err);
   }
   if (amount < 1) amount = DEFAULT_SEARCH_RESULT_AMOUNT;
@@ -70,7 +78,7 @@ router.route('/')
   var path = queryItems.shift();
   if (path.length === 0) {
     err = new Error('Query Illegal, Path Required');
-    err.status = 400;
+    err.status = 412;
     return next(err);
   }
   path = new RegExp(path);
@@ -105,7 +113,7 @@ router.route('/:namespace/:path')
     util.api.normalizeKeys(req.api);
   }
   catch (err) {
-    err.status = 400;
+    err.status = 412;
     return next(err);
   }
 
@@ -127,7 +135,7 @@ router.route('/:namespace/:path')
       util.api.normalizeKeys(res.api);
     }
     catch (err) {
-      err.status = 400;
+      err.status = 422;
       err.message += " For Target API";
       return next(err);
     }
