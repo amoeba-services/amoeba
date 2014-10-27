@@ -1,5 +1,8 @@
 var mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
+  Schema = mongoose.Schema,
+  util = {
+    api: require('../utils/api')
+  };
 
 var ApiSchema = new Schema({
 	path: {
@@ -38,6 +41,8 @@ ApiSchema.method({
     this.model('Api').findOne(conditions, 'path', callback);
   }
 });
+
+ApiSchema.static(util.api);
 
 mongoose.model('Api', ApiSchema);
 

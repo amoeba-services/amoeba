@@ -2,10 +2,7 @@ var express = require('express'),
   router = express.Router(),
   _ = require('underscore'),
   mongoose = require('mongoose'),
-  Api = mongoose.model('Api'),
-  util = {
-    api: require('../utils/api')
-  };
+  Api = mongoose.model('Api');
 
 module.exports = function (app) {
   app.use('/apis', router);
@@ -20,7 +17,7 @@ router.route('/')
   req.api = new Api(req.body);
 
   try {
-    util.api.normalizeKeys(req.api);
+    Api.normalizeKeys(req.api);
   }
   catch (err) {
     err.status = 422;
@@ -99,7 +96,7 @@ router.route('/')
   });
 })
 .get(function echo(req, res, next) {
-  res.json(_.map(res.apis, util.api.dropDbInfo));
+  res.json(_.map(res.apis, Api.dropDbInfo));
 });
 
 router.route('/:namespace/:path')
@@ -110,7 +107,7 @@ router.route('/:namespace/:path')
   };
 
   try {
-    util.api.normalizeKeys(req.api);
+    Api.normalizeKeys(req.api);
   }
   catch (err) {
     err.status = 412;
@@ -132,7 +129,7 @@ router.route('/:namespace/:path')
   if (keyChanged) {
     //检查是否合法
     try {
-      util.api.normalizeKeys(res.api);
+      Api.normalizeKeys(res.api);
     }
     catch (err) {
       err.status = 422;
@@ -209,7 +206,7 @@ function apiMatcher(req, res, next) {
 }
 
 function echo (req, res, next) {
-  res.json(util.api.dropKeys(util.api.dropDbInfo(res.api)));
+  res.json(Api.dropKeys(Api.dropDbInfo(res.api)));
 }
 
 function extendQuery(item) {

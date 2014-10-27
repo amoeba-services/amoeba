@@ -5,7 +5,6 @@ var express = require('express'),
   Api = mongoose.model('Api'),
   config = require('../../config/config'),
   util = {
-    api: require('../utils/api'),
     uri: require('../utils/uri-parser')
   };
 
@@ -38,7 +37,7 @@ router.route('/:namespace/:uri')
       path: target.path
     };
     try {
-      api = util.api.normalizeKeys(api);
+      api = Api.normalizeKeys(api);
     }
     catch (err) {
       err.code = 4000;
