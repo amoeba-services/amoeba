@@ -17,7 +17,7 @@ var DEFAULT_SEARCH_RESULT_AMOUNT = 5,
 router.route('/')
 //创建
 .post(function (req, res, next) {
-  req.api = req.body;
+  req.api = new Api(req.body);
 
   try {
     util.api.normalizeKeys(req.api);
@@ -27,7 +27,7 @@ router.route('/')
     return next(err);
   }
 
-  util.api.findConflictedApi(req.api, function (err, conflictedApi) {
+  req.api.findConflictedApi(function (err, conflictedApi) {
     if (err) return next(err);
     if (conflictedApi !== null) {
       //存在冲突的 api
@@ -139,7 +139,7 @@ router.route('/:namespace/:path')
       err.message += " For Target API";
       return next(err);
     }
-    util.api.findConflictedApi(res.api, function (err, conflictedApi) {
+    res.api.findConflictedApi(function (err, conflictedApi) {
       if (err) return next(err);
       if (conflictedApi !== null) {
         //存在冲突的 api

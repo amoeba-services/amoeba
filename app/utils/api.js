@@ -1,6 +1,4 @@
 var _ = require('underscore'),
-  mongoose = require('mongoose'),
-  Api = mongoose.model('Api'),
   validator = require('../utils/validator');
 
 module.exports = {
@@ -41,17 +39,5 @@ module.exports = {
       throw new Error('Illegal Path');
     }
     return api;
-  },
-  //检查是否已经存在存在冲突的 api
-  findConflictedApi: function (api, callback) {
-    var conditions = {
-      namespace: api.namespace,
-      path: api.path
-    };
-    //排除自身
-    if (api._id) {
-      conditions._id = { $ne: api._id };
-    }
-    Api.findOne(conditions, 'path', callback);
   }
 };

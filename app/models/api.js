@@ -24,4 +24,21 @@ ApiSchema.index({
   path: 1
 });
 
+ApiSchema.method({
+  //检查是否已经存在存在冲突的 api
+  findConflictedApi: function (callback) {
+    var conditions = {
+      namespace: this.namespace,
+      path: this.path
+    };
+    //排除自身
+    if (this._id) {
+      conditions._id = { $ne: this._id };
+    }
+    this.model('Api').findOne(conditions, 'path', callback);
+  }
+});
+
 mongoose.model('Api', ApiSchema);
+
+module.exports.ApiSchema = ApiSchema;
