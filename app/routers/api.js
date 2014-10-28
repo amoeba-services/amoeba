@@ -21,7 +21,7 @@ module.exports = function (router) {
       return next(err);
     }
 
-    req.api.findConflictedApi(function (err, conflictedApi) {
+    req.api.findConflictedOne(function (err, conflictedApi) {
       if (err) return next(err);
       if (conflictedApi !== null) {
         //存在冲突的 api
@@ -133,7 +133,7 @@ module.exports = function (router) {
         err.message += " For Target API";
         return next(err);
       }
-      res.api.findConflictedApi(function (err, conflictedApi) {
+      res.api.findConflictedOne(function (err, conflictedApi) {
         if (err) return next(err);
         if (conflictedApi !== null) {
           //存在冲突的 api

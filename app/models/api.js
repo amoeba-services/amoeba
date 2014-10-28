@@ -29,7 +29,7 @@ ApiSchema.index({
 
 ApiSchema.method({
   //检查是否已经存在存在冲突的 api
-  findConflictedApi: function (callback) {
+  findConflictedOne: function (callback) {
     var conditions = {
       namespace: this.namespace,
       path: this.path
@@ -38,7 +38,7 @@ ApiSchema.method({
     if (this._id) {
       conditions._id = { $ne: this._id };
     }
-    this.model('Api').findOne(conditions, 'path', callback);
+    this.model('Api').findOne(conditions, callback);
   }
 });
 
