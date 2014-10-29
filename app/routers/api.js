@@ -172,6 +172,9 @@ module.exports = function (router) {
       Api.findById(res.api.id, function(err, api) {
         if (err) return next(err);
         res.api = api;
+        //Model.update 不会触发 post save 的 hook，故这里手动 save
+        //see: http://mongoosejs.com/docs/middleware.html#notes
+        api.save();
         next();
       });
     });
