@@ -93,7 +93,9 @@ module.exports = function (router) {
     });
   })
   .get(function echo(req, res, next) {
-    res.json(_.map(res.apis, Api.dropDbInfo));
+    res.json(_(res.apis).map(function(api){
+      return api.toObject();
+    }));
   });
 
   router.route('/:namespace/:path')
@@ -209,7 +211,7 @@ function apiMatcher(req, res, next) {
 }
 
 function echo (req, res, next) {
-  res.json(Api.dropKeys(Api.dropDbInfo(res.api)));
+  res.json(Api.dropKeys(res.api.toObject()));
 }
 
 function extendQuery(item) {

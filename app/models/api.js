@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   util = {
+    model: require('../utils/model'),
     api: require('../utils/api')
   };
 
@@ -77,6 +78,13 @@ ApiSchema.method({
 });
 
 ApiSchema.static(util.api);
+
+if (!ApiSchema.options.toObject) {
+  ApiSchema.options.toObject = {};
+}
+ApiSchema.options.toObject.transform = function (doc, ret, options) {
+  return util.model.dropDbInfo(ret);
+};
 
 mongoose.model('Api', ApiSchema);
 
