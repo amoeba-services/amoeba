@@ -44,17 +44,6 @@ describe('utils', function(){
     };
     var sampleMongooseApi = new Api(sampleApi);
     var resultApi;
-    describe('dropDbInfo', function(){
-      var dropDbInfo = apiUtil.dropDbInfo;
-      it('should drop _id and __v', function(){
-        resultApi = dropDbInfo(sampleApi);
-        (resultApi.__v === undefined).should.be.true;
-        (resultApi._id === undefined).should.be.true;
-        resultApi = dropDbInfo(sampleMongooseApi);
-        (resultApi.__v === undefined).should.be.true;
-        (resultApi._id === undefined).should.be.true;
-      });
-    });
     describe('dropKeys', function(){
       var dropKeys = apiUtil.dropKeys;
       it('should drop namespace and path', function(){

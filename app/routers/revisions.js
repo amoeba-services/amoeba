@@ -2,7 +2,8 @@ var express = require('express'),
   router = express.Router(),
   mongoose = require('mongoose'),
   Api = mongoose.model('Api'),
-  Revisions = mongoose.model('Revisions');
+  Revisions = mongoose.model('Revisions'),
+  _ = require('underscore');
 
 module.exports = function (router) {
 
@@ -31,6 +32,9 @@ module.exports = function (router) {
     });
   })
   .get(function(req, res, next) {
-    res.json(res.revisions.records);
+    res.json(_(res.revisions.records).map(function(record){
+      return record.toObject();
+    }));
   });
+
 };
