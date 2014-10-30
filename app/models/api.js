@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
+  _ = require('underscore'),
   util = {
     model: require('../utils/model'),
     api: require('../utils/api')
@@ -30,14 +31,37 @@ ApiSchema.index({
 
 // api 修改后，增加修订记录
 ApiSchema.post('save', function() {
-  var api = this;
-  var revision = new (api.model('Revision'))({
+  var api = this,
+  Revision = api.model('Revision');
+  // api 禁用启用不记录
+  api.disabled = undefined;
+  var revision = new Revision({
     api_id: api._id,
     time: Date.now(),
     content: api.toJSON()
   });
   //去重
-  revision.save();
+  Revision.findOne({
+    api_id: api._id
+  }, 'content', {
+    sort: '-time'
+  }, function(err, lastRevision) {
+    if (err) {
+      console.error('get last revision error. revision:', lastRevision);
+      console.trace(err);
+    }
+    if (lastRevision && _.isEqual(revision.content, lastRevision.content)) {
+      console.log('no diff found from last version, this revision will not be recorded. api:' + api._id );
+    }
+    else {
+      revision.save(function(err) {
+        if (err) {
+          console.error('save new revision error. revision:', revision);
+          console.error(err);
+        }
+      });
+    }
+  });
 });
 
 ApiSchema.method({

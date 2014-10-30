@@ -153,7 +153,7 @@ module.exports = function (router) {
       });
     }
     else {
-      console.log('no api keys change, continue.');
+      console.log('no api keys changed, continue.');
       next();
     }
   })

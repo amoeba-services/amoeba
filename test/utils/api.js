@@ -2,9 +2,7 @@
 var assert = require('assert'),
   should = require('should');
 require('../../app/models/api');
-var mongoose = require('mongoose'),
-  Api = mongoose.model('Api'),
-  apiUtil = require('../../app/utils/api');
+var apiUtil = require('../../app/utils/api');
 
 describe('utils', function(){
   describe('api', function(){
@@ -42,15 +40,11 @@ describe('utils', function(){
       route: 'Route',
       __v: 1
     };
-    var sampleMongooseApi = new Api(sampleApi);
     var resultApi;
     describe('dropKeys', function(){
       var dropKeys = apiUtil.dropKeys;
       it('should drop namespace and path', function(){
         resultApi = dropKeys(sampleApi);
-        (resultApi.namespace === undefined).should.be.true;
-        (resultApi.path === undefined).should.be.true;
-        resultApi = dropKeys(sampleMongooseApi);
         (resultApi.namespace === undefined).should.be.true;
         (resultApi.path === undefined).should.be.true;
       });
