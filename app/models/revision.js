@@ -13,7 +13,7 @@ var RevisionSchema = new Schema({
 
 RevisionSchema.index({
   api_id: 1,
-  time: 1
+  time: 1 // for sort performance
 });
 
 if (!RevisionSchema.options.toJSON) {
