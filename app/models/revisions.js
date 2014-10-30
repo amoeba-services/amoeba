@@ -8,14 +8,7 @@ var mongoose = require('mongoose'),
 var RevisionSchema = new Schema({
   api_id: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
   time: { type: Date, required: true },
-  content: { type: ApiSchema.tree, required: true },
-  id: {
-    type: String,
-    getter: function() { return this._id.toString(); },
-    unique: true
-  }
-}, {
-    id: false
+  content: { type: ApiSchema.tree, required: true }
 });
 
 RevisionSchema.index({
@@ -28,6 +21,7 @@ if (!RevisionSchema.options.toJSON) {
 }
 RevisionSchema.options.toJSON.transform = function (doc, ret, options) {
   ret.id = ret._id;
+  ret.api_id = undefined;
   return util.model.dropDbInfo(ret);
 };
 
