@@ -31,27 +31,13 @@ ApiSchema.index({
 // api 修改后，增加修订记录
 ApiSchema.post('save', function() {
   var api = this;
-  this.getRevisions(function (err, revisions){
-    if (err) {
-      console.error('get revisions error. api:', api);
-      console.trace(err);
-    }
-    if (revisions === null) {
-      console.log('no revisions found for api[' + api.namespace + api.path + '], add a document.');
-      revisions = new (api.model('Revisions'))({
-        namespace: api.namespace,
-        path: api.path,
-        records: []
-      });
-    }
-    revisions.addRecord(api);
-    revisions.save(function(err) {
-      if (err) {
-        console.error('add a record to revisions error. api:', api);
-        console.error(err);
-      }
-    });
+  var revision = new (api.model('Revision'))({
+    api_id: api._id,
+    time: Date.now(),
+    content: api.toJSON()
   });
+  //去重
+  revision.save();
 });
 
 ApiSchema.method({
@@ -70,19 +56,18 @@ ApiSchema.method({
   //获取该 api 的 revisions
   getRevisions: function (callback) {
     var conditions = {
-      namespace: this.namespace,
-      path: this.path
+      api_id: this._id
     };
-    this.model('Revisions').findOne(conditions, callback);
+    this.model('Revision').find(conditions, callback);
   }
 });
 
 ApiSchema.static(util.api);
 
-if (!ApiSchema.options.toObject) {
-  ApiSchema.options.toObject = {};
+if (!ApiSchema.options.toJSON) {
+  ApiSchema.options.toJSON = {};
 }
-ApiSchema.options.toObject.transform = function (doc, ret, options) {
+ApiSchema.options.toJSON.transform = function (doc, ret, options) {
   return util.model.dropDbInfo(ret);
 };
 

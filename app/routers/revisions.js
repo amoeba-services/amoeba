@@ -2,7 +2,7 @@ var express = require('express'),
   router = express.Router(),
   mongoose = require('mongoose'),
   Api = mongoose.model('Api'),
-  Revisions = mongoose.model('Revisions'),
+  Revision = mongoose.model('Revision'),
   _ = require('underscore');
 
 module.exports = function (router) {
@@ -20,20 +20,29 @@ module.exports = function (router) {
       err.status = 412;
       return next(err);
     }
-    Revisions.findOne(conditions, function(err, revisions) {
+    Api.findOne(conditions, '_id', function(err, api) {
       if (err) return next(err);
-      if (revisions === null) {
+      if (api === null) {
         err = new Error('API Not Found');
         err.status = 404;
         return next(err);
       }
+      res.api = api;
+      next();
+    });
+  })
+  .get(function(req, res, next) {
+    Revision.find({
+      api_id: res.api._id
+    }, function(err, revisions) {
+      if (err) return next(err);
       res.revisions = revisions;
       next();
     });
   })
   .get(function(req, res, next) {
-    res.json(_(res.revisions.records).map(function(record){
-      return record.toObject();
+    res.json(_(res.revisions).map(function(revision){
+      return revision.toJSON();
     }));
   });
 

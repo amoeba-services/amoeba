@@ -5,57 +5,30 @@ var mongoose = require('mongoose'),
     model: require('../utils/model')
   };
 
-var RecordSchema = new Schema({
-  time: {
-    type: Date,
-    required: true
-  },
-  content: {
-    type: ApiSchema.tree,
-    required: true
+var RevisionSchema = new Schema({
+  api_id: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
+  time: { type: Date, required: true },
+  content: { type: ApiSchema.tree, required: true },
+  id: {
+    type: String,
+    getter: function() { return this._id.toString(); },
+    unique: true
   }
+}, {
+    id: false
 });
 
-if (!RecordSchema.options.toObject) {
-  RecordSchema.options.toObject = {};
+RevisionSchema.index({
+  api_id: 1,
+  time: 1
+});
+
+if (!RevisionSchema.options.toJSON) {
+  RevisionSchema.options.toJSON = {};
 }
-RecordSchema.options.toObject.transform = function (doc, ret, options) {
+RevisionSchema.options.toJSON.transform = function (doc, ret, options) {
+  ret.id = ret._id;
   return util.model.dropDbInfo(ret);
 };
 
-var RevisionsSchema = new Schema({
-  path: {
-    type: String,
-    required: true
-  },
-  namespace: {
-    type: String,
-    required: true
-  },
-  records: [RecordSchema]
-});
-
-RevisionsSchema.index({
-  namespace: 1,
-  path: 1
-});
-
-RevisionsSchema.method({
-  //增加一条记录
-  addRecord: function (api) {
-    var record = {
-      time: Date.now(),
-      content: api.toObject()
-    };
-    this.records.push(record);
-  }
-});
-
-if (!RevisionsSchema.options.toObject) {
-  RevisionsSchema.options.toObject = {};
-}
-RevisionsSchema.options.toObject.transform = function (doc, ret, options) {
-  return util.model.dropDbInfo(ret);
-};
-
-mongoose.model('Revisions', RevisionsSchema);
+mongoose.model('Revision', RevisionSchema);

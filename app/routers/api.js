@@ -94,7 +94,7 @@ module.exports = function (router) {
   })
   .get(function echo(req, res, next) {
     res.json(_(res.apis).map(function(api){
-      return api.toObject();
+      return api.toJSON();
     }));
   });
 
@@ -211,7 +211,7 @@ function apiMatcher(req, res, next) {
 }
 
 function echo (req, res, next) {
-  res.json(Api.dropKeys(res.api.toObject()));
+  res.json(Api.dropKeys(res.api.toJSON()));
 }
 
 function extendQuery(item) {
