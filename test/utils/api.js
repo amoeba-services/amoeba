@@ -32,22 +32,5 @@ describe('utils', function(){
         normalizeKeys({ namespace: "com.amoeba", path: '' }).path.should.eql('/');
       });
     });
-
-    var sampleApi = {
-      path: '/path/to/resource',
-      namespace: 'com.amoeba',
-      description: 'Description',
-      route: 'Route',
-      __v: 1
-    };
-    var resultApi;
-    describe('dropKeys', function(){
-      var dropKeys = apiUtil.dropKeys;
-      it('should drop namespace and path', function(){
-        resultApi = dropKeys(sampleApi);
-        (resultApi.namespace === undefined).should.be.true;
-        (resultApi.path === undefined).should.be.true;
-      });
-    });
   });
 });

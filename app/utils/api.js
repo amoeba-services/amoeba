@@ -2,13 +2,6 @@ var _ = require('underscore'),
   validator = require('../utils/validator');
 
 module.exports = {
-  dropKeys: function (api) {
-    if (api.toJSON) api = api.toJSON();
-    return _.extend({}, api, {
-      path: undefined,
-      namespace: undefined
-    });
-  },
   normalizeKeys: function (api) {
     if (!(typeof api.namespace === 'string' && api.namespace.length)) {
       throw new Error('Namespace Required');

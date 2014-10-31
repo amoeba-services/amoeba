@@ -24,6 +24,10 @@ var ApiSchema = new Schema({
 	disabled: Boolean
 });
 
+ApiSchema.virtual('url').get(function () {
+  return '/' + encodeURIComponent(this.namespace) + '/' + encodeURIComponent(this.path);
+});
+
 ApiSchema.index({
   namespace: 1,
   path: 1
@@ -88,12 +92,11 @@ ApiSchema.method({
 
 ApiSchema.static(util.api);
 
-if (!ApiSchema.options.toJSON) {
-  ApiSchema.options.toJSON = {};
-}
-ApiSchema.options.toJSON.transform = function (doc, ret, options) {
+ApiSchema.set('toJSON', { virtuals: true, transform: infoDropper });
+
+function infoDropper(doc, ret, options) {
   return util.model.dropDbInfo(ret);
-};
+}
 
 mongoose.model('Api', ApiSchema);
 

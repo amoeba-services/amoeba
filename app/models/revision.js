@@ -16,13 +16,11 @@ RevisionSchema.index({
   time: 1 // for sort performance
 });
 
-if (!RevisionSchema.options.toJSON) {
-  RevisionSchema.options.toJSON = {};
-}
-RevisionSchema.options.toJSON.transform = function (doc, ret, options) {
-  ret.id = ret._id;
+RevisionSchema.set('toJSON', { virtuals: true, transform: infoDropper });
+
+function infoDropper(doc, ret, options) {
   ret.api_id = undefined;
   return util.model.dropDbInfo(ret);
-};
+}
 
 mongoose.model('Revision', RevisionSchema);

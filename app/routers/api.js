@@ -57,7 +57,7 @@ module.exports = function (router) {
   //搜索
   .get(function queryParser (req, res, next) {
     var query = req.param('q'),
-      amount = Math.floor(req.param('amount')),
+      amount = Math.floor(req.param('amount', DEFAULT_SEARCH_RESULT_AMOUNT)),
       err;
     if (query === undefined) {
       err = new Error('Param \'q\' Required');
@@ -86,7 +86,7 @@ module.exports = function (router) {
     next();
   })
   .get(function search(req, res, next) {
-    Api.find(req.query, null, { limit: req.options.amount }, function(err, apis) {
+    Api.find(req.query, 'namespace path description', { limit: req.options.amount }, function(err, apis) {
       if (err) return next(err);
       res.apis = apis;
       next();
@@ -211,7 +211,7 @@ function apiMatcher(req, res, next) {
 }
 
 function echo (req, res, next) {
-  res.json(Api.dropKeys(res.api.toJSON()));
+  res.json(res.api.toJSON());
 }
 
 function extendQuery(item) {
