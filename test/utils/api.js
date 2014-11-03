@@ -1,6 +1,5 @@
 /*jshint expr: true*/
-var assert = require('assert'),
-  should = require('should');
+var should = require('should');
 require('../../app/models/api');
 var apiUtil = require('../../app/utils/api');
 

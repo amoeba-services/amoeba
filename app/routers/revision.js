@@ -5,16 +5,38 @@ var express = require('express'),
   Revision = mongoose.model('Revision'),
   _ = require('underscore');
 
+var DEFAULT_REVISIONS_AMOUNT = 20,
+  MAX_REVISIONS_AMOUNT = 30;
+
 module.exports = function (router) {
 
   router.route('/:namespace/:path/revisions')
   .get(apiMatcher)
   .get(function(req, res, next) {
-    Revision.find({
+    var conditions = {
       api_id: res.api._id
-    }, null, {
-      sort: '-time'
-    }, function(err, revisions) {
+    };
+
+    var createdBefore = req.query.createdBefore;
+
+    if (createdBefore !== undefined) {
+      conditions.time = { $lt: new Date(createdBefore) };
+    }
+
+    var limit = Math.floor(req.query.limit),
+      skip = Math.floor(req.query.skip);
+
+    if (isNaN(limit) || limit < 1) limit = DEFAULT_REVISIONS_AMOUNT;
+    if (limit > MAX_REVISIONS_AMOUNT) limit = MAX_REVISIONS_AMOUNT;
+    if (isNaN(skip) || skip < 0) skip = 0;
+
+    var options = {
+      sort: '-time',
+      skip: skip,
+      limit: limit
+    };
+
+    Revision.find(conditions, null, options, function(err, revisions) {
       if (err) return next(err);
       res.revisions = revisions;
       next();

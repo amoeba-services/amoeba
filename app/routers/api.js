@@ -56,16 +56,16 @@ module.exports = function (router) {
   .post(echo)
   //搜索
   .get(function queryParser (req, res, next) {
-    var query = req.param('q'),
-      amount = Math.floor(req.param('amount', DEFAULT_SEARCH_RESULT_AMOUNT)),
+    var query = req.query.q,
+      limit = Math.floor(req.query.limit),
       err;
     if (query === undefined) {
       err = new Error('Param \'q\' Required');
       err.status = 412;
       return next(err);
     }
-    if (amount < 1) amount = DEFAULT_SEARCH_RESULT_AMOUNT;
-    if (amount > MAX_SEARCH_RESULT_AMOUNT) amount = MAX_SEARCH_RESULT_AMOUNT;
+    if (isNaN(limit) || limit < 1) limit = DEFAULT_SEARCH_RESULT_AMOUNT;
+    if (limit > MAX_SEARCH_RESULT_AMOUNT) limit = MAX_SEARCH_RESULT_AMOUNT;
 
     var queryItems = query.split(' ');
     query = {};
@@ -80,13 +80,13 @@ module.exports = function (router) {
     query.path = path;
     req.query = query;
     req.options = {
-      amount: amount
+      limit: limit
     };
     console.log('Query: ', req.query, 'Options: ', req.options);
     next();
   })
   .get(function search(req, res, next) {
-    Api.find(req.query, 'namespace path description', { limit: req.options.amount }, function(err, apis) {
+    Api.find(req.query, 'namespace path description', req.options, function(err, apis) {
       if (err) return next(err);
       res.apis = apis;
       next();
