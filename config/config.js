@@ -15,8 +15,7 @@ var config = {
   production: {
     root: rootPath,
     app: {
-      name: 'amoeba',
-      redirectOnError: true
+      name: 'amoeba'
     },
     port: process.env.PORT || 3000,
     db: process.env.MONGOLAB_URI

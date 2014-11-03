@@ -8,13 +8,16 @@ router.use(function errorHeadersSetter(err, req, res, next) {
   res.set('X-Amoeba-Message', err.message);
   next(err);
 });
-if (config.app.redirectOnError) {
-  router.use(function redirector(err, req, res, next) {
+router.use(function redirector(err, req, res, next) {
+  if (req.get('X-Redirect-On-Error') === '1') {
     res.status(307);
     res.set('Location', req.target.source);
     res.send();
-  });
-}
+  }
+  else {
+    next(err);
+  }
+});
 
 module.exports = function (app) {
   app.use('/data', router);
