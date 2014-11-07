@@ -12,7 +12,7 @@ router.use(function redirector(err, req, res, next) {
   if (req.get('X-Redirect-On-Error') === '1') {
     res.status(307);
     res.set('Location', req.target.source);
-    res.send();
+    res.send('Amoeba Redirect');
   }
   else {
     next(err);
