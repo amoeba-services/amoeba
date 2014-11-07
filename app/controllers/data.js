@@ -4,7 +4,7 @@ var express = require('express'),
 
 require('../routers/data')(router);
 router.use(function errorHeadersSetter(err, req, res, next) {
-  res.set('X-Amoeba-Error', err.code || 5000);
+  res.set('X-Amoeba-Statue', err.code || 5000);
   res.set('X-Amoeba-Message', err.message);
   next(err);
 });
@@ -12,7 +12,7 @@ router.use(function redirector(err, req, res, next) {
   if (req.get('X-Redirect-On-Error') === '1') {
     res.status(307);
     res.set('Location', req.target.source);
-    res.send('Amoeba Redirect');
+    res.send();
   }
   else {
     next(err);
