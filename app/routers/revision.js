@@ -3,7 +3,10 @@ var express = require('express'),
   mongoose = require('mongoose'),
   Api = mongoose.model('Api'),
   Revision = mongoose.model('Revision'),
-  _ = require('underscore');
+  _ = require('underscore'),
+  util = {
+    analytics: require('../utils/analytics')
+  };
 
 var DEFAULT_REVISIONS_AMOUNT = 20,
   MAX_REVISIONS_AMOUNT = 30;
@@ -11,6 +14,11 @@ var DEFAULT_REVISIONS_AMOUNT = 20,
 module.exports = function (router) {
 
   router.route('/:namespace/:path/revisions')
+  .all(util.analytics.pv(
+    '/apis/<%= namespace %>/:path/revisions',
+    null,
+    '/apis/:namespace/:path/revisions'
+  ))
   .get(apiMatcher)
   .get(function(req, res, next) {
     var conditions = {
@@ -42,6 +50,7 @@ module.exports = function (router) {
       next();
     });
   })
+  .get(util.analytics.send())
   .get(function(req, res, next) {
     res.json(_(res.revisions).map(function(revision){
       return revision.toJSON();
@@ -49,6 +58,11 @@ module.exports = function (router) {
   });
 
   router.route('/:namespace/:path/revisions/:id')
+  .all(util.analytics.pv(
+    '/apis/<%= namespace %>/:path/revisions/:id',
+    null,
+    '/apis/:namespace/:path/revisions/:id'
+  ))
   .get(apiMatcher)
   .get(function(req, res,next) {
     Revision.findById(req.params.id, function(err, revision) {
@@ -62,6 +76,7 @@ module.exports = function (router) {
       next();
     });
   })
+  .get(util.analytics.send())
   .get(function(req, res, next) {
     res.json(res.revision.toJSON());
   });

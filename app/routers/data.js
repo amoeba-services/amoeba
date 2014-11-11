@@ -2,7 +2,8 @@ var _ = require('underscore'),
   mongoose = require('mongoose'),
   Api = mongoose.model('Api'),
   util = {
-    uri: require('../utils/uri-parser')
+    uri: require('../utils/uri-parser'),
+    analytics: require('../utils/analytics')
   };
 
 var CONTENT_TYPES = {
@@ -35,6 +36,7 @@ module.exports = function (router) {
       });
       next();
   })
+  .all(util.analytics.pv('/data/<%= namespace %>/:uri', null, '/data/:namespace/:uri'))
   .all(function apiMatcher(req, res, next) {
     Api.findOne(req.api, function (err, api) {
       if (err) return next(err);
@@ -75,6 +77,13 @@ module.exports = function (router) {
     }
     next();
   })
+  .all(function(req, res, next) {
+    if (req.visitor) {
+      req.visitor.event('Data Api', '2000 OK');
+    }
+    next();
+  })
+  .all(util.analytics.send())
   .all(function echoResponse(req, res, next) {
     var info = res.info;
     if (info.headers['Content-Type'] === undefined) {
@@ -90,5 +99,11 @@ module.exports = function (router) {
     res.set('X-Amoeba-Statue', 2000);
     res.set('X-Amoeba-Message', 'OK');
     res.send(info.body);
+  })
+  .all(function(err, req, res, next) {
+    if (req.visitor) {
+      req.visitor.event('Data Api', err.code + ' ' + err.message);
+    }
+    next(err);
   });
 };

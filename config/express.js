@@ -1,11 +1,17 @@
 var express = require('express');
 var glob = require('glob');
+var config = require('./config');
 
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var compress = require('compression');
 var methodOverride = require('method-override');
+
+var ua = require('universal-analytics');
+var util = {
+  analytics: require('../app/utils/analytics')
+};
 
 module.exports = function(app, config) {
   app.use(logger('dev'));
@@ -24,6 +30,14 @@ module.exports = function(app, config) {
     next();
   });
 
+  //analytics
+  if (!config.googleAnalyticsId) {
+    console.warn('No Google Analytics ID setted. Check env variable GOOGLE_ANALYTICS_ID.');
+  }
+  else {
+    app.use(ua.middleware(config.googleAnalyticsId));
+  }
+
   var controllers = glob.sync(config.root + '/app/controllers/*.js');
   controllers.forEach(function (controller) {
     require(controller)(app);
@@ -32,6 +46,14 @@ module.exports = function(app, config) {
   app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
+    next(err);
+  });
+
+  app.use(function (err, req, res, next) {
+    if (req.visitor) {
+      req.visitor.exception(err.status + ' ' + err.message);
+      req.visitor.send();
+    }
     next(err);
   });
 

@@ -2,7 +2,10 @@ var express = require('express'),
   router = express.Router(),
   _ = require('underscore'),
   mongoose = require('mongoose'),
-  Api = mongoose.model('Api');
+  Api = mongoose.model('Api'),
+  util = {
+    analytics: require('../utils/analytics')
+  };
 
 var DEFAULT_SEARCH_RESULT_AMOUNT = 5,
   MAX_SEARCH_RESULT_AMOUNT = 10;
@@ -10,6 +13,7 @@ var DEFAULT_SEARCH_RESULT_AMOUNT = 5,
 module.exports = function (router) {
   router.route('/')
   //创建
+  .post(util.analytics.pv('/apis', null, '/apis'))
   .post(function (req, res, next) {
     req.api = new Api(req.body);
 
@@ -53,8 +57,10 @@ module.exports = function (router) {
     res.set('Location', uri);
     next();
   })
+  .post(util.analytics.send())
   .post(echo)
   //搜索
+  .get(util.analytics.pv('/apis?q', null, '/apis'))
   .get(function queryParser (req, res, next) {
     var query = req.query.q,
       limit = Math.floor(req.query.limit),
@@ -92,6 +98,7 @@ module.exports = function (router) {
       next();
     });
   })
+  .get(util.analytics.send())
   .get(function echo(req, res, next) {
     res.json(_(res.apis).map(function(api){
       return api.toJSON();
@@ -115,10 +122,10 @@ module.exports = function (router) {
 
     next();
   })
+  .all(util.analytics.pv('/apis/<%= namespace %>/:path', null, '/apis/:namespace/:path'))
 
   //获取
   .get(apiMatcher)
-  .get(echo)
 
   //更新
   .patch(apiMatcher)
@@ -163,7 +170,6 @@ module.exports = function (router) {
       next();
     });
   })
-  .patch(echo)
 
   .put(apiMatcher)
   .put(function (req, res, next) {
@@ -181,15 +187,16 @@ module.exports = function (router) {
       });
     });
   })
-  .put(echo)
 
   //删除（不允许）
   .delete(function (req, res, next) {
     var err = new Error('Method Not Allowed');
     err.status = 405;
     next(err);
-  });
+  })
 
+  .all(util.analytics.send())
+  .all(echo);
 };
 
 
