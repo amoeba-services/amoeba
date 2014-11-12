@@ -98,6 +98,7 @@ module.exports = function (router) {
   .all(function(err, req, res, next) {
     if (req.visitor) {
       req.visitor.event('Data Api', err.code + ' ' + err.message);
+      req.visitor.send();
     }
     next(err);
   });
