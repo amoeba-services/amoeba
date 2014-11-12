@@ -52,6 +52,7 @@ module.exports = function(app, config) {
   app.use(function (err, req, res, next) {
     if (req.visitor) {
       req.visitor.exception(err.status + ' ' + err.message);
+      req.visitor.event('Error', err.status + ' ' + err.message);
       req.visitor.send();
     }
     next(err);

@@ -77,12 +77,7 @@ module.exports = function (router) {
     }
     next();
   })
-  .all(function(req, res, next) {
-    if (req.visitor) {
-      req.visitor.event('Data Api', '2000 OK');
-    }
-    next();
-  })
+  .all(util.analytics.event('Data Api', '2000 OK'))
   .all(util.analytics.send())
   .all(function echoResponse(req, res, next) {
     var info = res.info;
