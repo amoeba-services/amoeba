@@ -4,7 +4,7 @@ var express = require('express'),
 
 require('../routers/data')(router);
 router.use(function errorHeadersSetter(err, req, res, next) {
-  res.set('X-Amoeba-Statue', err.code || 5000);
+  res.set('X-Amoeba-Status', err.code || 5000);
   res.set('X-Amoeba-Message', err.message);
   next(err);
 });

@@ -91,7 +91,7 @@ module.exports = function (router) {
     _(info.headers).forEach(function(value, key) {
       res.set(key, value);
     });
-    res.set('X-Amoeba-Statue', 2000);
+    res.set('X-Amoeba-Status', 2000);
     res.set('X-Amoeba-Message', 'OK');
     res.send(info.body);
   })
