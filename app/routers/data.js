@@ -10,6 +10,7 @@ var CONTENT_TYPES = {
   'json': 'application/json',
   'text': 'text/plain'
 };
+var DEFAULT_CONTENT_TYPE = 'text';
 
 module.exports = function (router) {
   router.route('/:namespace/:uri')
@@ -81,8 +82,11 @@ module.exports = function (router) {
   .all(util.analytics.send())
   .all(function echoResponse(req, res, next) {
     var info = res.info;
+    if (info.headers === undefined) {
+      info.headers = {};
+    }
     if (info.headers['Content-Type'] === undefined) {
-      info.headers['Content-Type'] = CONTENT_TYPES[info.type];
+      info.headers['Content-Type'] = CONTENT_TYPES[info.type || DEFAULT_CONTENT_TYPE];
     }
     if (info.type === 'json') {
       info.body = JSON.stringify(info.body);
