@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var compress = require('compression');
 var methodOverride = require('method-override');
+var cors = require('cors');
 
 var ua = require('universal-analytics');
 var util = {
@@ -24,11 +25,8 @@ module.exports = function(app, config) {
   app.use(methodOverride());
 
   //enable CROS for *
-  app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
+  app.use(cors());
+  app.options('*', cors());
 
   //analytics
   if (!config.googleAnalyticsId) {
