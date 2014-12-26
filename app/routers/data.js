@@ -92,8 +92,8 @@ module.exports = function (router) {
       info.body = JSON.stringify(info.body);
     }
     res.status(info.status || 200);
-    _(info.headers).forEach(function(value, key) {
-      res.set(key, value);
+    _(info.headers).forEach(function(header) {
+      res.set(header.key, header.value);
     });
     res.set('X-Amoeba-Status', 2000);
     res.set('X-Amoeba-Message', 'OK');
