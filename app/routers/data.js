@@ -8,9 +8,11 @@ var _ = require('underscore'),
 
 var CONTENT_TYPES = {
   'json': 'application/json',
-  'text': 'text/plain'
+  'text': 'text/plain',
+  'html': 'text/html',
+  'xml': 'application/xml'
 };
-var DEFAULT_CONTENT_TYPE = 'text';
+var DEFAULT_CONTENT_TYPE = 'json';
 
 module.exports = function (router) {
   router.route('/:namespace/:uri')
@@ -85,9 +87,9 @@ module.exports = function (router) {
     if (!_.isArray(info.headers)) {
       info.headers = [];
     }
-    info.headers.push({
+    info.headers.unshift({
       key: 'Content-Type',
-      value: CONTENT_TYPES[info.type || DEFAULT_CONTENT_TYPE]
+      value: CONTENT_TYPES[info.type] || CONTENT_TYPES[DEFAULT_CONTENT_TYPE]
     });
     if (info.type === 'json') {
       info.body = JSON.stringify(info.body);
