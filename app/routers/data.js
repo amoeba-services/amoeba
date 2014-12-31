@@ -82,12 +82,13 @@ module.exports = function (router) {
   .all(util.analytics.send())
   .all(function echoResponse(req, res, next) {
     var info = res.info;
-    if (info.headers === undefined) {
-      info.headers = {};
+    if (!_.isArray(info.headers)) {
+      info.headers = [];
     }
-    if (info.headers['Content-Type'] === undefined) {
-      info.headers['Content-Type'] = CONTENT_TYPES[info.type || DEFAULT_CONTENT_TYPE];
-    }
+    info.headers.push({
+      key: 'Content-Type',
+      value: CONTENT_TYPES[info.type || DEFAULT_CONTENT_TYPE]
+    });
     if (info.type === 'json') {
       info.body = JSON.stringify(info.body);
     }
