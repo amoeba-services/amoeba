@@ -91,9 +91,6 @@ module.exports = function (router) {
       key: 'Content-Type',
       value: CONTENT_TYPES[info.type] || CONTENT_TYPES[DEFAULT_CONTENT_TYPE]
     });
-    if (info.type === 'json') {
-      info.body = JSON.stringify(info.body);
-    }
     res.status(info.status || 200);
     _(info.headers).forEach(function(header) {
       res.set(header.key, header.value);
