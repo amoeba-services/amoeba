@@ -2,6 +2,7 @@ var express = require('express'),
   router = express.Router(),
   _ = require('underscore'),
   mongoose = require('mongoose'),
+  escapeStringRegexp = require('escape-string-regexp'),
   Api = mongoose.model('Api'),
   util = {
     analytics: require('../utils/analytics')
@@ -81,7 +82,8 @@ module.exports = function (router) {
       err.status = 412;
       return next(err);
     }
-    path = new RegExp(path);
+    path = new RegExp(escapeStringRegexp(path));
+
     _.each(queryItems, extendQuery, query);
     query.path = path;
     req.query = query;
