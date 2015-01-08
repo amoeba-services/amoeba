@@ -2,6 +2,7 @@
   "name": "amoeba",
   "version": "0.1.0",
   "private": true,
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "test": "mocha test/*"
