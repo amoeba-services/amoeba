@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV === 'production') {
+  require('newrelic');
+}
+
 var express = require('express'),
   config = require('./config/config'),
   glob = require('glob'),
