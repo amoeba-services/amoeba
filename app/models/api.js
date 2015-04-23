@@ -25,7 +25,7 @@ var ApiSchema = new Schema({
 });
 
 ApiSchema.virtual('url').get(function () {
-  return '/' + encodeURIComponent(this.namespace) + '/' + encodeURIComponent(this.path);
+  return '/apis/' + encodeURIComponent(this.namespace) + '/' + encodeURIComponent(this.path);
 });
 
 ApiSchema.index({
