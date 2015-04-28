@@ -82,7 +82,7 @@ module.exports = function (router) {
       err.status = 412;
       return next(err);
     }
-    path = new RegExp(escapeStringRegexp(path));
+    path = new RegExp(escapeStringRegexp(path), 'i');
 
     _.each(queryItems, extendQuery, query);
     query.path = path;
